@@ -5,18 +5,22 @@
 
 using std::string;
 struct node {
-    char ch = ' ';
-    int freq = 0;
-    string code = "";
-    node *left = nullptr;
-    node *right = nullptr;
-    node() {}
-    node(char character) : ch(character) {}
+    char ch;
+    int freq;
+    node *left;
+    node *right;
 };
-
+node *genNode(char character) {
+    node *node1 = (node *)malloc(sizeof(node));
+    node1->ch = character;
+    node1->freq = 0;
+    node1->right = nullptr;
+    node1->left = nullptr;
+    return node1;
+}
 class heap {
 private:
-    std::vector<node> pQueue;
+    std::vector<node *> pQueue;
     int parent(int i) {
         return (i - 1) / 2;
     }
@@ -32,39 +36,39 @@ private:
         int l = left(i);
         int r = right(i);
         int smallest = i;
-        if (l < size() && pQueue[l].freq < pQueue[i].freq) {
+        if (l < size() && pQueue[l]->freq < pQueue[i]->freq) {
             smallest = l;
         }
-        if (r < size() && pQueue[r].freq < pQueue[smallest].freq) {
+        if (r < size() && pQueue[r]->freq < pQueue[smallest]->freq) {
             smallest = r;
         }
         if (smallest != i) {
-            swap(i, smallest);
+            swap(pQueue[i], pQueue[smallest]);
             heapify_down(smallest);
         }
     }
     void heapify_up(int i) {
-        if (i && pQueue[parent(i)].freq > pQueue[i].freq) {
-            swap(i, parent(i));
+        if (i && pQueue[parent(i)]->freq > pQueue[i]->freq) {
+            swap(pQueue[i], pQueue[parent(i)]);
             heapify_up(parent(i));
         }
     }
-    void swap(int i, int j) {
-        node temp = pQueue.at(i);
-        pQueue[i] = pQueue[j];
-        pQueue[j] = temp;
+    void swap(node *i, node *j) {
+        node temp = *i;
+        *i = *j;
+        *j = temp;
     }
 
 public:
     heap() {}
-    node popRoot() {
-        node temp = (pQueue.at(0));
+    node *popRoot() {
+        node *temp = pQueue.at(0);
         pQueue[0] = pQueue.back();
         pQueue.pop_back();
         heapify_down(0);
         return temp;
     }
-    void insert(node newNode) {
+    void insert(node *newNode) {
         pQueue.push_back(newNode);
         heapify_up(pQueue.size() - 1);
     }
@@ -73,7 +77,7 @@ public:
     }
 };
 
-void readFile(string &filename, std::unordered_map<char, node> &freqMap) {
+void readFile(string &filename, std::unordered_map<char, node *> &freqMap) {
     std::ifstream myfile(filename);
     if (myfile.is_open()) {
         char ch;
@@ -82,67 +86,62 @@ void readFile(string &filename, std::unordered_map<char, node> &freqMap) {
             if ((ch <= 'z' && ch >= 'a') || isspace(ch) || (ch >= '0' && ch <= '9') || ch == ',' || ch == '.') {
                 if (isspace(ch))
                     ch = ' ';
-                ++freqMap[ch].freq; // increment freq
+                ++freqMap[ch]->freq; // increment freq
             }
         }
         myfile.close();
     } else
         std::cout << "Unable to open file\n";
 }
-void genCodes_AUX(node *n, string code, std::ofstream &myFile) {
-    if (n->left != nullptr) {
-        genCodes_AUX(n->left, code.append("0"), myFile);
-    }if  (!(n->left) && !(n->right)) {
-        n->code = code;
-        myFile << n->ch <<":" << code << '\n';
+void genCodes_AUX(node *n, int codes[], int index, std::ofstream &myFile) {
+    if (n->left) {
+        codes[index] = 1;
+        genCodes_AUX(n->left, codes, index + 1, myFile);
     }
-    if (n->right != nullptr) {
-        genCodes_AUX(n->right, code.append("1"), myFile);
+    if (!(n->left) && !(n->right)) {
+        myFile << n->ch << ":";
+        for (int i = 0; i < index; ++i)
+            myFile << codes[i];
+        myFile << '\n';
+    }
+    if (n->right) {
+        codes[index] = 0;
+        genCodes_AUX(n->right, codes, index + 1, myFile);
     }
 }
 
-void genCodes(std::unordered_map<char, node> &freqMap) {
-    string c = "", data;
+void genCodes(std::unordered_map<char, node *> &freqMap) {
+    int codes_[39], index = 0;
     heap codes;
+    node *child1, *child2, *subTree, *root;
     for (auto x : freqMap) {
         codes.insert(x.second);
     }
     // create tree
-    std::unordered_map<int, node> temp;
     while (codes.size() > 1) {
-        node child1 = codes.popRoot();
-        node child2 = codes.popRoot();
-        node subTree = node('^');
-        std::cout << child1.ch << ":" << child1.freq << '\n';
-        std::cout << child2.ch << ":" << child2.freq << '\n';
-        subTree.freq = child1.freq + child2.freq;
-        if (freqMap.find(child1.ch) != freqMap.end())
-            subTree.left = &(freqMap[child1.ch]);
-        else
-            subTree.left = &(temp[child1.freq]);
-        if (freqMap.find(child2.ch) != freqMap.end())
-            subTree.right = &(freqMap[child2.ch]);
-        else
-            subTree.right = &(temp[child2.freq]);
-        temp[subTree.freq] = subTree;
-        std::cout << subTree.ch << ":" << subTree.freq << '\n' << '\n';
+        child1 = codes.popRoot();
+        child2 = codes.popRoot();
+        subTree = genNode('^');
+        subTree->freq = child1->freq + child2->freq;
+        subTree->left = child1;
+        subTree->right = child2;
         codes.insert(subTree);
     }
-    node root = codes.popRoot(); // pointer to tree
+    root = codes.popRoot(); // pointer to tree
     std::ofstream myFile("codes.txt");
-    genCodes_AUX(&root, c, myFile);
+    genCodes_AUX(root, codes_, index, myFile);
     myFile.close();
 }
 
 int main() {
     string filename, data;
-    std::unordered_map<char, node> freqMap;
+    std::unordered_map<char, node *> freqMap;
     char characters[39] = {' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
                            'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
                            'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
                            '8', '9', ',', '.'};
     for (char ch : characters) {
-        freqMap[ch] = node(ch);
+        freqMap[ch] = genNode(ch);
     }
     // std::cout << "Enter filename to encode: ";
     // std::cin >> filename;
@@ -154,7 +153,7 @@ int main() {
         data = i.first;
         if (data == "\n")
             data = "\\n";
-        myFile << data << ":" << i.second.freq << '\n';
+        myFile << data << ":" << i.second->freq << '\n';
     }
     myFile.close();
 
