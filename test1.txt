@@ -331,4 +331,5 @@ Prerequisite: CP4NINE3 and permission of the Department.
 
 CP4NINE5: Directed Studies
 A detailed study of an aspect of computer science or computer electronics not available through the regular program.
-Prerequisite: Registration status: Year 4 Honours Computer Science or Honours Computing & Computer Electronics and permission of both the department and the instructor.
+Prerequisite: Registration status: Year 4 Honours Computer Science or Honours Computing & Computer Electronics and permission of both the department and the 
+instructor.
