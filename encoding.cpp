@@ -10,17 +10,17 @@ struct node {
     node *left;
     node *right;
 };
-struct node *genNode(char character) {
-  struct node *node1 = (struct node *)malloc(sizeof(struct node));
-  node1->ch = character;
-  node1->freq=0;
-  node1->right = NULL;
-  node1->left = NULL;
-  return node1;
+node *genNode(char character) {
+    node *node1 = (node *)malloc(sizeof(node));
+    node1->ch = character;
+    node1->freq = 0;
+    node1->right = nullptr;
+    node1->left = nullptr;
+    return node1;
 }
 class heap {
 private:
-    std::vector<node*> pQueue;
+    std::vector<node *> pQueue;
     int parent(int i) {
         return (i - 1) / 2;
     }
@@ -61,7 +61,7 @@ private:
 
 public:
     heap() {}
-    node* popRoot() {
+    node *popRoot() {
         node *temp = pQueue.at(0);
         pQueue[0] = pQueue.back();
         pQueue.pop_back();
@@ -77,7 +77,7 @@ public:
     }
 };
 
-void readFile(string &filename, std::unordered_map<char, node*> &freqMap) {
+void readFile(string &filename, std::unordered_map<char, node *> &freqMap) {
     std::ifstream myfile(filename);
     if (myfile.is_open()) {
         char ch;
@@ -93,27 +93,27 @@ void readFile(string &filename, std::unordered_map<char, node*> &freqMap) {
     } else
         std::cout << "Unable to open file\n";
 }
-void genCodes_AUX(node *n, int arr[], int top, std::ofstream &myFile) {
+void genCodes_AUX(node *n, int codes[], int index, std::ofstream &myFile) {
     if (n->left) {
-        arr[top]=1;
-        genCodes_AUX(n->left, arr,top+1, myFile);
-    }if  (!(n->left) && !(n->right)) {
+        codes[index] = 1;
+        genCodes_AUX(n->left, codes, index + 1, myFile);
+    }
+    if (!(n->left) && !(n->right)) {
         myFile << n->ch << ":";
-        for (int i = 0; i < top; ++i)
-            myFile << arr[i];
+        for (int i = 0; i < index; ++i)
+            myFile << codes[i];
         myFile << '\n';
     }
     if (n->right) {
-        arr[top]=0;
-        genCodes_AUX(n->right, arr,top+1, myFile);
+        codes[index] = 0;
+        genCodes_AUX(n->right, codes, index + 1, myFile);
     }
 }
 
-void genCodes(std::unordered_map<char, node*> &freqMap) {
-    string c = "", data;
-    int arr[50], top = 0;
+void genCodes(std::unordered_map<char, node *> &freqMap) {
+    int codes_[39], index = 0;
     heap codes;
-    node *child1,*child2,*subTree,*root;
+    node *child1, *child2, *subTree, *root;
     for (auto x : freqMap) {
         codes.insert(x.second);
     }
@@ -122,23 +122,20 @@ void genCodes(std::unordered_map<char, node*> &freqMap) {
         child1 = codes.popRoot();
         child2 = codes.popRoot();
         subTree = genNode('^');
-        std::cout << child1->ch << ":" << child1->freq << '\n';
-        std::cout << child2->ch << ":" << child2->freq << '\n';
         subTree->freq = child1->freq + child2->freq;
         subTree->left = child1;
         subTree->right = child2;
-        std::cout << subTree->ch << ":" << subTree->freq << '\n' << '\n';
         codes.insert(subTree);
     }
     root = codes.popRoot(); // pointer to tree
     std::ofstream myFile("codes.txt");
-    genCodes_AUX(root, arr,top, myFile);
+    genCodes_AUX(root, codes_, index, myFile);
     myFile.close();
 }
 
 int main() {
     string filename, data;
-    std::unordered_map<char, node*> freqMap;
+    std::unordered_map<char, node *> freqMap;
     char characters[39] = {' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
                            'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
                            'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
