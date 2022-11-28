@@ -45,9 +45,9 @@ private:
     }
     void heapify_up(int i) {
         if (i && pQueue[parent(i)].freq > pQueue[i].freq) {
-                swap(i, parent(i));
-                heapify_up(parent(i));
-            }
+            swap(i, parent(i));
+            heapify_up(parent(i));
+        }
     }
     void swap(int i, int j) {
         node temp = pQueue.at(i);
@@ -89,40 +89,49 @@ void readFile(string &filename, std::unordered_map<char, node> &freqMap) {
     } else
         std::cout << "Unable to open file\n";
 }
-void genCodes_AUX(node *n, string code) {
-    if ((*n).left != nullptr) {
-        code.append("0");
-        std::cout << (*n).ch << (*n).freq << std::endl;
-        genCodes_AUX((*n).left, code);
+void genCodes_AUX(node *n, string code, std::ofstream &myFile) {
+    if (n->left != nullptr) {
+        genCodes_AUX(n->left, code.append("0"), myFile);
+    }if  (!(n->left) && !(n->right)) {
+        n->code = code;
+        myFile << n->ch <<":" << code << '\n';
     }
-    if ((*n).right != nullptr) {
-        code.append("1");
-        genCodes_AUX(n->right, code);
-    }
-    if ((*n).ch != '^') {
-        std::cout << "test" << std::endl;
+    if (n->right != nullptr) {
+        genCodes_AUX(n->right, code.append("1"), myFile);
     }
 }
+
 void genCodes(std::unordered_map<char, node> &freqMap) {
-    string c = "";
+    string c = "", data;
     heap codes;
     for (auto x : freqMap) {
         codes.insert(x.second);
     }
     // create tree
-    std::vector<node> temp;
+    std::unordered_map<int, node> temp;
     while (codes.size() > 1) {
-        temp.emplace_back(codes.popRoot());
-        temp.emplace_back(codes.popRoot());
+        node child1 = codes.popRoot();
+        node child2 = codes.popRoot();
         node subTree = node('^');
-        subTree.freq = temp[temp.size()-1].freq + temp[temp.size()-2].freq;
-        subTree.left = &temp[temp.size()-2];
-        subTree.right = &temp[temp.size()-1];
+        std::cout << child1.ch << ":" << child1.freq << '\n';
+        std::cout << child2.ch << ":" << child2.freq << '\n';
+        subTree.freq = child1.freq + child2.freq;
+        if (freqMap.find(child1.ch) != freqMap.end())
+            subTree.left = &(freqMap[child1.ch]);
+        else
+            subTree.left = &(temp[child1.freq]);
+        if (freqMap.find(child2.ch) != freqMap.end())
+            subTree.right = &(freqMap[child2.ch]);
+        else
+            subTree.right = &(temp[child2.freq]);
+        temp[subTree.freq] = subTree;
+        std::cout << subTree.ch << ":" << subTree.freq << '\n' << '\n';
         codes.insert(subTree);
     }
     node root = codes.popRoot(); // pointer to tree
-    genCodes_AUX(&root, c);
-    std::cout << "test" << std::endl;
+    std::ofstream myFile("codes.txt");
+    genCodes_AUX(&root, c, myFile);
+    myFile.close();
 }
 
 int main() {
