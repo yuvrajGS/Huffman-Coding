@@ -5,15 +5,19 @@
 
 using std::string;
 struct node {
-    char ch = ' ';
-    int freq = 0;
-    string code = "";
-    node *left = nullptr;
-    node *right = nullptr;
-    node() {}
-    node(char character) : ch(character) {}
+    char ch;
+    int freq;
+    node *left;
+    node *right;
 };
-
+struct node *genNode(char character) {
+  struct node *node1 = (struct node *)malloc(sizeof(struct node));
+  node1->ch = character;
+  node1->freq=0;
+  node1->right = NULL;
+  node1->left = NULL;
+  return node1;
+}
 class heap {
 private:
     std::vector<node> pQueue;
@@ -73,7 +77,7 @@ public:
     }
 };
 
-void readFile(string &filename, std::unordered_map<char, node> &freqMap) {
+void readFile(string &filename, std::unordered_map<char, node*> &freqMap) {
     std::ifstream myfile(filename);
     if (myfile.is_open()) {
         char ch;
@@ -82,13 +86,14 @@ void readFile(string &filename, std::unordered_map<char, node> &freqMap) {
             if ((ch <= 'z' && ch >= 'a') || isspace(ch) || (ch >= '0' && ch <= '9') || ch == ',' || ch == '.') {
                 if (isspace(ch))
                     ch = ' ';
-                ++freqMap[ch].freq; // increment freq
+                ++freqMap[ch]->freq; // increment freq
             }
         }
         myfile.close();
     } else
         std::cout << "Unable to open file\n";
 }
+/*
 void genCodes_AUX(node *n, string code, std::ofstream &myFile) {
     if (n->left != nullptr) {
         genCodes_AUX(n->left, code.append("0"), myFile);
@@ -133,16 +138,16 @@ void genCodes(std::unordered_map<char, node> &freqMap) {
     genCodes_AUX(&root, c, myFile);
     myFile.close();
 }
-
+*/
 int main() {
     string filename, data;
-    std::unordered_map<char, node> freqMap;
+    std::unordered_map<char, node*> freqMap;
     char characters[39] = {' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
                            'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
                            'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
                            '8', '9', ',', '.'};
     for (char ch : characters) {
-        freqMap[ch] = node(ch);
+        freqMap[ch] = genNode(ch);
     }
     // std::cout << "Enter filename to encode: ";
     // std::cin >> filename;
@@ -154,9 +159,9 @@ int main() {
         data = i.first;
         if (data == "\n")
             data = "\\n";
-        myFile << data << ":" << i.second.freq << '\n';
+        myFile << data << ":" << i.second->freq << '\n';
     }
     myFile.close();
 
-    genCodes(freqMap);
+    //genCodes(freqMap);
 }
