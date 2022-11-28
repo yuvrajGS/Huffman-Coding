@@ -93,19 +93,25 @@ void readFile(string &filename, std::unordered_map<char, node*> &freqMap) {
     } else
         std::cout << "Unable to open file\n";
 }
-void genCodes_AUX(node *n, string code, std::ofstream &myFile) {
-    if (n->left != nullptr) {
-        genCodes_AUX(n->left, code.append("0"), myFile);
+void genCodes_AUX(node *n, int arr[], int top, std::ofstream &myFile) {
+    if (n->left) {
+        arr[top]=1;
+        genCodes_AUX(n->left, arr,top+1, myFile);
     }if  (!(n->left) && !(n->right)) {
-        myFile << n->ch <<":" << code << '\n';
+        myFile << n->ch << ":";
+        for (int i = 0; i < top; ++i)
+            myFile << arr[i];
+        myFile << '\n';
     }
-    if (n->right != nullptr) {
-        genCodes_AUX(n->right, code.append("1"), myFile);
+    if (n->right) {
+        arr[top]=0;
+        genCodes_AUX(n->right, arr,top+1, myFile);
     }
 }
 
 void genCodes(std::unordered_map<char, node*> &freqMap) {
     string c = "", data;
+    int arr[50], top = 0;
     heap codes;
     node *child1,*child2,*subTree,*root;
     for (auto x : freqMap) {
@@ -126,7 +132,7 @@ void genCodes(std::unordered_map<char, node*> &freqMap) {
     }
     root = codes.popRoot(); // pointer to tree
     std::ofstream myFile("codes.txt");
-    genCodes_AUX(root, c, myFile);
+    genCodes_AUX(root, arr,top, myFile);
     myFile.close();
 }
 
