@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <string.h>
 #include <unordered_map>
 #include <vector>
 
@@ -132,6 +133,63 @@ void genCodes(std::unordered_map<char, node *> &freqMap) {
     genCodes_AUX(root, codes_, index, myFile);
     myFile.close();
 }
+void genCompressed(string &filename) {
+    std::unordered_map<char, string> codeMap;
+    string line;
+    std::ifstream myfile("codes.txt");
+    if (myfile.is_open()) {
+        char ch;
+        while (getline(myfile, line)) { // fill code hashtable with the generated code for each valid character
+            ch = tolower(line[0]);
+            codeMap[ch] = line.substr(2);
+        }
+        myfile.close();
+    }
+    std::ifstream myfile2(filename);
+    if (myfile2.is_open()) {
+        std::ofstream file("compressed.bin", std::ios::binary);
+        char ch, bit;
+        unsigned char buffer[2048] = {0};
+        unsigned char mask = 128;
+        int i = 0;
+        string code;
+        bit = 0;
+        while (myfile2 >> std::noskipws >> ch) { // read each character in test1.txt
+            ch = tolower(ch);
+            if ((ch <= 'z' && ch >= 'a') || isspace(ch) || (ch >= '0' && ch <= '9') || ch == ',' || ch == '.') { // if valid character
+                if (isspace(ch))
+                    ch = ' ';       // convert tabs,new lines, etc to space
+                code = codeMap[ch]; // get code (string) for given character
+
+                for (int k = 0; k < code.size(); k++) { // loop through size of code
+                    if (code[k] == '1') {
+                        mask = 128;
+                        mask = mask >> bit; // right shift mask based on current bit position
+
+                        buffer[i] = buffer[i] | mask; // OR buffer and mask
+                        bit++;
+                    } else {
+                        bit++;
+                    }
+                    if (bit == 8) { // once character is written to buffer
+                        bit = 0;
+                        i++;
+                    }
+                }
+                if (i == 2048) { // buffer full, write to binary file
+                    file.write((char *)&buffer, 2048);
+                    for (int j = 0; j < code.size(); j++) {
+                        buffer[j] = 0;
+                    }
+                    i = 0;
+                }
+            }
+        }
+
+        file.close();
+        myfile2.close();
+    }
+}
 
 int main() {
     string filename, data;
@@ -158,4 +216,6 @@ int main() {
     myFile.close();
 
     genCodes(freqMap);
+    genCompressed(filename);
+    std::cout << "done" << std::endl;
 }
