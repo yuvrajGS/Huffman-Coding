@@ -178,7 +178,7 @@ void genCompressed(string &filename) {
                 }
                 if (i == 2048) { // buffer full, write to binary file
                     file.write((char *)&buffer, 2048);
-                    for (int j = 0; j < code.size(); j++) {
+                    for (int j = 0; j < 2048; j++) {
                         buffer[j] = 0;
                     }
                     i = 0;
