@@ -1,3 +1,8 @@
+/*
+Yuvraj Singh
+200670570
+*/
+
 #include <fstream>
 #include <iostream>
 #include <string.h>
@@ -7,18 +12,11 @@
 using std::string;
 struct node {
     char ch;
-    int freq;
-    node *left;
-    node *right;
+    int freq=0;
+    node *left =nullptr;
+    node *right=nullptr;
+    node(char character) : ch(character){}
 };
-node *genNode(char character) {
-    node *node1 = (node *)malloc(sizeof(node));
-    node1->ch = character;
-    node1->freq = 0;
-    node1->right = nullptr;
-    node1->left = nullptr;
-    return node1;
-}
 class heap {
 private:
     std::vector<node *> pQueue;
@@ -122,7 +120,7 @@ void genCodes(std::unordered_map<char, node *> &freqMap) {
     while (codes.size() > 1) {
         child1 = codes.popRoot();
         child2 = codes.popRoot();
-        subTree = genNode('^');
+        subTree = new node('^');
         subTree->freq = child1->freq + child2->freq;
         subTree->left = child1;
         subTree->right = child2;
@@ -199,7 +197,7 @@ int main() {
                            'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
                            '8', '9', ',', '.'};
     for (char ch : characters) {
-        freqMap[ch] = genNode(ch);
+        freqMap[ch] = new node(ch);
     }
     // std::cout << "Enter filename to encode: ";
     // std::cin >> filename;
