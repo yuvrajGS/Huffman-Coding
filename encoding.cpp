@@ -185,7 +185,7 @@ void genCompressed(string &filename) {
                 }
             }
         }
-
+        file.write((char *)&buffer, i);
         file.close();
         myfile2.close();
     }
