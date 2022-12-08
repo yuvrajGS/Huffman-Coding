@@ -146,12 +146,11 @@ void genCompressed(string &filename) {
     std::ifstream myfile2(filename);
     if (myfile2.is_open()) {
         std::ofstream file("compressed.bin", std::ios::binary);
-        char ch, bit;
+        char ch, bit=0;
         unsigned char buffer[2048] = {0};
         unsigned char mask = 128;
         int i = 0;
         string code;
-        bit = 0;
         while (myfile2 >> std::noskipws >> ch) { // read each character in test1.txt
             ch = tolower(ch);
             if ((ch <= 'z' && ch >= 'a') || isspace(ch) || (ch >= '0' && ch <= '9') || ch == ',' || ch == '.') { // if valid character
@@ -188,7 +187,7 @@ void genCompressed(string &filename) {
         myfile2.close();
     }
 }
-
+/*
 int main() {
     string filename, data;
     std::unordered_map<char, node *> freqMap;
@@ -217,3 +216,4 @@ int main() {
     genCompressed(filename);
     std::cout << "done" << std::endl;
 }
+*/
