@@ -6,7 +6,6 @@ Yuvraj Singh
 #include <iostream>
 #include <string.h>
 #include <vector>
-#include <math.h>
 
 using std::string;
 
@@ -72,7 +71,7 @@ public:
         pQueue.push_back(newNode);
         heapify_up(pQueue.size() - 1);
     }
-    node*getRoot(){
+    node *getRoot() {
         return pQueue.at(0);
     }
     int size() {
@@ -104,31 +103,31 @@ void reconstructHuffman(heap &codes) {
     }
 }
 
-void decode(heap &codes){
-    unsigned char mask,ch=0,temp;
-    char bit=0;
-    int j=0;
+void decode(heap &codes) {
+    unsigned char mask, ch = 0, temp;
+    char bit = 0;
+    int j = 0;
 
     node *tempChar = codes.getRoot();
     std::ofstream myFile("decoded.txt");
     std::ifstream file("compressed.bin", std::ios::binary);
     std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(file), {});
     file.close();
-    while(j != buffer.size()){
-        mask=128;
+    while (j != buffer.size()) {
+        mask = 128;
         mask = mask >> bit++; // right shift mask based on current bit position
         ch = buffer[j] & mask;
-        if(ch)
-            tempChar=tempChar->left;
+        if (ch) // find code by going through tree
+            tempChar = tempChar->left;
         else
-            tempChar=tempChar->right;
-        if(tempChar->right == nullptr && tempChar->left == nullptr){
+            tempChar = tempChar->right;
+        if (tempChar->right == nullptr && tempChar->left == nullptr) { // leaf node (node with character) reached
             myFile << tempChar->ch;
-            tempChar=codes.getRoot();
+            tempChar = codes.getRoot(); // reset node
         }
-        if(bit == 8){
+        if (bit == 8) { // move to next buffer index and reset bit
             j++;
-            bit=0;
+            bit = 0;
         }
     }
     myFile.close();
@@ -138,8 +137,5 @@ int main() {
     heap codes;
     reconstructHuffman(codes);
     decode(codes);
-    std::cout << "test" << std::endl;
+    std::cout << "Finished" << std::endl;
 }
-
-
-

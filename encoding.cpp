@@ -187,7 +187,7 @@ void genCompressed(string &filename) {
         myfile2.close();
     }
 }
-/*
+
 int main() {
     string filename, data;
     std::unordered_map<char, node *> freqMap;
@@ -214,6 +214,5 @@ int main() {
 
     genCodes(freqMap);
     genCompressed(filename);
-    std::cout << "done" << std::endl;
+    std::cout << "Finished" << std::endl;
 }
-*/
