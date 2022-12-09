@@ -198,9 +198,9 @@ int main() {
     for (char ch : characters) {
         freqMap[ch] = new node(ch);
     }
-    // std::cout << "Enter filename to encode: ";
-    // std::cin >> filename;
-    filename = "test1.txt"; // TESTING
+    std::cout << "Enter filename to encode (test1.txt): ";
+    std::cin >> filename;
+    //filename = "test1.txt"; // TESTING
     readFile(filename, freqMap);
     // create frequency.txt
     std::ofstream myFile("frequency.txt");
